@@ -30,18 +30,20 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  path_provider: ^2.1.1
+  connectivity_plus: ^5.0.2
+  json_annotation: ^4.8.1
   # Gestión de estado
   provider: ^6.1.1
-  
-  # Almacenamiento local
+    # Almacenamiento local
   shared_preferences: ^2.2.2
   sqflite: ^2.3.0
   
   # Networking
   http: ^1.1.0
-  
-  # Utilidades
-  path_provider: ^2.1.1
+  geolocator: ^14.0.1
 
 dev_dependencies:
   flutter_test:

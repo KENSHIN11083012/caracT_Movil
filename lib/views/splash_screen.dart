@@ -11,12 +11,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   late AnimationController _controller;
   late Animation<double> _curveAnimation;
   late Animation<double> _borderAnimation;
-
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 3),
       vsync: this,
     );
 
@@ -29,9 +28,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     _controller.forward();
     
-    // Navegar después de 2 segundos
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pushReplacementNamed(context, '/home');
+    // Navegar después de 3 segundos
+    Future.delayed(const Duration(seconds: 3), () {
+      Navigator.pushReplacementNamed(context, '/survey');
     });
   }
 
@@ -98,20 +97,46 @@ class BorderPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
-      ..style = PaintingStyle.fill
-      ..strokeWidth = 4.0;
+      ..style = PaintingStyle.fill;
 
-    final path = Path()
+    // Figura izquierda
+    final leftPath = Path()
       ..moveTo(0, 0)
-      ..lineTo(size.width * progress, 0)
+      ..lineTo(size.width * 0.4 * progress, 0)
+      ..quadraticBezierTo(
+        size.width * 0.5,
+        0,
+        size.width * 0.4,
+        size.height * 0.3 * progress,
+      )
+      ..quadraticBezierTo(
+        0,
+        size.height * 0.5,
+        0,
+        size.height * progress,
+      )
+      ..lineTo(0, 0);
+
+    // Figura derecha
+    final rightPath = Path()
+      ..moveTo(size.width, size.height)
+      ..lineTo(size.width * (1 - 0.4 * progress), size.height)
+      ..quadraticBezierTo(
+        size.width * 0.5,
+        size.height,
+        size.width * 0.6,
+        size.height * (1 - 0.3 * progress),
+      )
       ..quadraticBezierTo(
         size.width,
-        0,
+        size.height * 0.5,
         size.width,
-        size.height * progress,
-      );
+        size.height * (1 - progress),
+      )
+      ..lineTo(size.width, size.height);
 
-    canvas.drawPath(path, paint);
+    canvas.drawPath(leftPath, paint);
+    canvas.drawPath(rightPath, paint);
   }
 
   @override

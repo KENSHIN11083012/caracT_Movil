@@ -42,8 +42,11 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Necesitamos acceso a tu ubicación para registrar la posición geográfica de la institución educativa</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Necesitamos acceso a tu ubicación para registrar la posición geográfica de la institución educativa</string>
 </dict>
 </plist>
