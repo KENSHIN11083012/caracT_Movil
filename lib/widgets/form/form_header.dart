@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'form_progress_bar.dart';
 
 class FormHeader extends StatelessWidget {
   final String title;
@@ -23,16 +22,15 @@ class FormHeader extends StatelessWidget {
             title,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Paso $currentStep de $totalSteps',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.8),
+            style: const TextStyle(
               fontSize: 16,
+              color: Colors.white,
             ),
           ),
         ],

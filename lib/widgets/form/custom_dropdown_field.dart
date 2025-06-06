@@ -20,23 +20,22 @@ class CustomDropdownField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: DropdownButtonFormField<String>(
-        value: value,
+        value: items.contains(value) ? value : null,
         decoration: AppTheme.inputDecoration.copyWith(
           labelText: label,
         ),
-        items: items.map((item) {
-          return DropdownMenuItem(
-            value: item,
-            child: Text(item),
-          );
-        }).toList(),
+        items: items.map((item) => DropdownMenuItem<String>(
+          value: item,
+          child: Text(item),
+        )).toList(),
+        onChanged: onChanged,
+        isExpanded: true,
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Este campo es requerido';
+            return 'Por favor seleccione una opción';
           }
           return null;
         },
-        onChanged: onChanged,
       ),
     );
   }
