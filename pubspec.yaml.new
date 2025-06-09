@@ -1,29 +1,26 @@
-﻿name: caracterizacion_cens
+name: caracterizacion_cens
 description: "A new Flutter project."
 publish_to: 'none'
-
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.8.0 <4.0.0'
-  flutter: ">=3.30.0"
+  sdk: '^3.8.1'
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  provider: ^6.1.1
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   path_provider: ^2.1.1
+  connectivity_plus: ^5.0.2
+  json_annotation: ^4.8.1
+  provider: ^6.1.1
   shared_preferences: ^2.2.2
   sqflite: ^2.3.0
-  connectivity_plus: ^5.0.2
-  geolocator: ^10.1.0
-  json_annotation: ^4.8.1
   logging: ^1.2.0
-  image_picker: ^1.0.7
+  geolocator: ^10.1.0
 
 dev_dependencies:
   flutter_test:

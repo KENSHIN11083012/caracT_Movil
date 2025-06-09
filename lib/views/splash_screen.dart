@@ -25,13 +25,13 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       curve: Curves.easeInOut,
     );
 
-    _borderAnimation = Tween<double>(begin: 0, end: 1).animate(_curveAnimation);
-
-    _controller.forward();
+    _borderAnimation = Tween<double>(begin: 0, end: 1).animate(_curveAnimation);    _controller.forward();
     
     // Navegar después de 2 segundos
     Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pushReplacementNamed(context, '/home');
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
     });
   }
 
