@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/institutionalInfo.dart';
+import '../models/survey_state.dart';
 import '../widgets/form/custom_text_field.dart';
-import '../widgets/form/form_header.dart';
-import '../widgets/layout/rounded_container.dart';
-import '../widgets/form/continue_button.dart';
 import '../widgets/form/location_field.dart';
+import '../widgets/form/form_navigation_buttons.dart';
+import '../widgets/layout/form_container.dart';
 
 class InstitutionalFormPage extends StatefulWidget {
   const InstitutionalFormPage({super.key});
@@ -15,115 +16,174 @@ class InstitutionalFormPage extends StatefulWidget {
 
 class _InstitutionalFormPageState extends State<InstitutionalFormPage> {
   final _formKey = GlobalKey<FormState>();
-  final _institutionalInfo = InstitutionalInfo();
+  late InstitutionalInfo _institutionalInfo;
+  bool _showErrors = false;
+  
+  // Agregar controllers
+  final _institutionNameController = TextEditingController();
+  final _headquartersController = TextEditingController();
+  final _principalNameController = TextEditingController();
+  final _contactController = TextEditingController();
+  final _emailController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final surveyState = Provider.of<SurveyState>(context, listen: false);
+    _institutionalInfo = surveyState.institutionalInfo;
+    
+    // Inicializar controllers
+    _institutionNameController.text = _institutionalInfo.institutionName ?? '';
+    _headquartersController.text = _institutionalInfo.educationalHeadquarters ?? '';
+    _principalNameController.text = _institutionalInfo.principalName ?? '';
+    _contactController.text = _institutionalInfo.contact ?? '';
+    _emailController.text = _institutionalInfo.email ?? '';
+  }
+
+  @override
+  void dispose() {
+    _institutionNameController.dispose();
+    _headquartersController.dispose();
+    _principalNameController.dispose();
+    _contactController.dispose();
+    _emailController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF4CAF50),
-      body: SafeArea(
-        child: Column(
-          children: [
-            const FormHeader(
-              title: 'Formulario de Encuesta Educativa',
-              currentStep: 2,
-              totalSteps: 9,
-            ),
-            Expanded(
-              child: RoundedContainer(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Información Institucional',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        CustomTextField(
-                          label: 'Nombre de la Institución Educativa - Principal',
-                          onChanged: (value) => _institutionalInfo.institutionName = value,
-                        ),
-                        CustomTextField(
-                          label: 'Nombre Sede Educativa',
-                          onChanged: (value) => _institutionalInfo.educationalHeadquarters = value,
-                        ),
-                        CustomTextField(
-                          label: 'Ubicación geográfica de la sede educativa (Coordenadas)',
-                          hintText: 'Ej: 4.5709, -74.2973',
-                          onChanged: (value) => _institutionalInfo.location = value,
-                        ),
-                        CustomTextField(
-                          label: 'Nombre del Rector',
-                          onChanged: (value) => _institutionalInfo.principalName = value,
-                        ),
-                        CustomTextField(
-                          label: 'Contacto',
-                          onChanged: (value) => _institutionalInfo.contact = value,
-                        ),
-                        CustomTextField(
-                          label: 'Correo Electrónico',
-                          keyboardType: TextInputType.emailAddress,
-                          onChanged: (value) => _institutionalInfo.email = value,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Este campo es requerido';
-                            }
-                            if (!value.contains('@')) {
-                              return 'Ingrese un correo electrónico válido';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            TextButton.icon(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              icon: const Icon(Icons.arrow_back),
-                              label: const Text('Anterior'),
-                              style: TextButton.styleFrom(
-                                foregroundColor: const Color(0xFF4CAF50),
-                              ),
-                            ),
-                            ElevatedButton.icon(
-                              onPressed: _submitForm,
-                              icon: const Icon(Icons.arrow_forward),
-                              label: const Text('Continuar'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF4CAF50),
-                                foregroundColor: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+    return FormContainer(
+      title: 'Información Institucional',
+      currentStep: 2,
+      child: Column(
+        children: [
+          Expanded(
+            child: Form(
+              key: _formKey,
+              autovalidateMode: _showErrors 
+                  ? AutovalidateMode.always 
+                  : AutovalidateMode.disabled,
+              child: ListView(
+                padding: const EdgeInsets.all(24),
+                children: [
+                  const Text(
+                    'Información Institucional',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
+                    textAlign: TextAlign.center,
                   ),
-                ),
+                  const SizedBox(height: 24),
+                  
+                  CustomTextField(
+                    label: 'Nombre de la Institución Educativa - Principal',
+                    controller: _institutionNameController,
+                    onChanged: (value) => _institutionalInfo.institutionName = value,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Este campo es requerido';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  CustomTextField(
+                    label: 'Nombre Sede Educativa',
+                    controller: _headquartersController,
+                    onChanged: (value) => _institutionalInfo.educationalHeadquarters = value,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Este campo es requerido';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  LocationField(
+                    label: 'Ubicación geográfica de la sede educativa (Coordenadas)',
+                    initialValue: _institutionalInfo.location,
+                    onChanged: (value) => _institutionalInfo.location = value,
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  CustomTextField(
+                    label: 'Nombre del Rector',
+                    controller: _principalNameController,
+                    onChanged: (value) => _institutionalInfo.principalName = value,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Este campo es requerido';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  CustomTextField(
+                    label: 'Contacto',
+                    keyboardType: TextInputType.phone,
+                    controller: _contactController,
+                    onChanged: (value) => _institutionalInfo.contact = value,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Este campo es requerido';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  CustomTextField(
+                    label: 'Correo Electrónico',
+                    keyboardType: TextInputType.emailAddress,
+                    controller: _emailController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Este campo es requerido';
+                      }
+                      if (!value.contains('@')) {
+                        return 'Ingrese un correo electrónico válido';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) => _institutionalInfo.email = value,
+                  ),
+                  const SizedBox(height: 32),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+          FormNavigationButtons(
+            onPrevious: () => Navigator.pop(context),
+            onNext: _submitForm,
+          ),
+        ],
       ),
     );
   }
+
   void _submitForm() {
+    setState(() {
+      _showErrors = true;
+    });
+
     if (_formKey.currentState!.validate()) {
-      // TODO: Implementar guardado local con Hive o SQLite
-      print(_institutionalInfo.toJson()); // Para depuración
-      
-      // Navegar a la página de infraestructura
-      Navigator.pushNamed(context, '/infrastructure');
+      Provider.of<SurveyState>(context, listen: false)
+          .updateInstitutionalInfo(_institutionalInfo);
+      Navigator.pushNamed(context, '/coverage');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor, complete todos los campos requeridos'),
+          backgroundColor: Color(0xFFD32F2F),
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.all(16),
+        ),
+      );
     }
   }
 }

@@ -5,6 +5,7 @@ import '../models/infrastructureInfo.dart';
 
 class StorageService {
   static const String _surveyBox = 'survey_box';
+  static const String _infrastructureBox = 'infrastructure_box';
 
   static Future<void> init() async {
     await Hive.initFlutter();
@@ -43,7 +44,6 @@ class StorageService {
 
     return pendingSurveys;
   }
-
   static Future<void> markSurveyAsSynced(String surveyId) async {
     final box = await Hive.openBox(_surveyBox);
     final survey = box.get(surveyId);
@@ -51,5 +51,19 @@ class StorageService {
       survey['syncStatus'] = 'synced';
       await box.put(surveyId, survey);
     }
+  }
+
+  static Future<void> saveInfrastructureInfo(InfrastructureInfo info) async {
+    final box = await Hive.openBox(_infrastructureBox);
+    await box.put('current', info.toJson());
+  }
+
+  static Future<InfrastructureInfo?> getInfrastructureInfo() async {
+    final box = await Hive.openBox(_infrastructureBox);
+    final data = box.get('current');
+    if (data != null) {
+      return InfrastructureInfo.fromJson(Map<String, dynamic>.from(data));
+    }
+    return null;
   }
 }

@@ -28,9 +28,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     _controller.forward();
     
-    // Navegar después de 3 segundos
+    // Modificar la navegación
     Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacementNamed(context, '/survey');
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/survey');
+      }
     });
   }
 

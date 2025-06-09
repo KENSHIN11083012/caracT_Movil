@@ -1,38 +1,49 @@
 class InfrastructureInfo {
-  String? buildingType;
-  int? classroomsCount;
-  int? bathroomsCount;
-  String? waterSource;
-  String? electricitySource;
-  String? internetAccess;
-  String? sportsFacilities;
-  String? laboratory;
-  String? computerRoom;
-  String? library;
+  bool hasSalones;
+  bool hasComedor;
+  bool hasCocina;
+  bool hasSalonReuniones;
+  bool hasHabitaciones;
+  bool hasBanos;
+  bool hasOtros;
+  String proyectosInfraestructura;
+  String propiedadPredio;
 
   InfrastructureInfo({
-    this.buildingType,
-    this.classroomsCount,
-    this.bathroomsCount,
-    this.waterSource,
-    this.electricitySource,
-    this.internetAccess,
-    this.sportsFacilities,
-    this.laboratory,
-    this.computerRoom,
-    this.library,
+    this.hasSalones = false,
+    this.hasComedor = false,
+    this.hasCocina = false,
+    this.hasSalonReuniones = false,
+    this.hasHabitaciones = false,
+    this.hasBanos = false,
+    this.hasOtros = false,
+    this.proyectosInfraestructura = '',
+    this.propiedadPredio = 'Municipio',
   });
 
   Map<String, dynamic> toJson() => {
-    'buildingType': buildingType,
-    'classroomsCount': classroomsCount,
-    'bathroomsCount': bathroomsCount,
-    'waterSource': waterSource,
-    'electricitySource': electricitySource,
-    'internetAccess': internetAccess,
-    'sportsFacilities': sportsFacilities,
-    'laboratory': laboratory,
-    'computerRoom': computerRoom,
-    'library': library,
+    'hasSalones': hasSalones,
+    'hasComedor': hasComedor,
+    'hasCocina': hasCocina,
+    'hasSalonReuniones': hasSalonReuniones,
+    'hasHabitaciones': hasHabitaciones,
+    'hasBanos': hasBanos,
+    'hasOtros': hasOtros,
+    'proyectosInfraestructura': proyectosInfraestructura,
+    'propiedadPredio': propiedadPredio,
   };
+
+  factory InfrastructureInfo.fromJson(Map<String, dynamic> json) {
+    return InfrastructureInfo(
+      hasSalones: json['hasSalones'] ?? false,
+      hasComedor: json['hasComedor'] ?? false,
+      hasCocina: json['hasCocina'] ?? false,
+      hasSalonReuniones: json['hasSalonReuniones'] ?? false,
+      hasHabitaciones: json['hasHabitaciones'] ?? false,
+      hasBanos: json['hasBanos'] ?? false,
+      hasOtros: json['hasOtros'] ?? false,
+      proyectosInfraestructura: json['proyectosInfraestructura'] ?? '',
+      propiedadPredio: json['propiedadPredio'] ?? 'Municipio',
+    );
+  }
 }
