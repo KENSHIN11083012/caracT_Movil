@@ -7,6 +7,7 @@ import 'observationsInfo.dart';
 import 'electricity_info.dart';
 import 'appliances_info.dart';
 import 'access_route_info.dart';
+import 'photographic_record_info.dart';
 
 class SurveyState extends ChangeNotifier {
   GeneralInfo generalInfo = GeneralInfo();
@@ -17,6 +18,7 @@ class SurveyState extends ChangeNotifier {
   ElectricityInfo electricityInfo = ElectricityInfo();
   AppliancesInfo appliancesInfo = AppliancesInfo();
   AccessRouteInfo accessRouteInfo = AccessRouteInfo();
+  PhotographicRecordInfo photographicRecordInfo = PhotographicRecordInfo();
 
   void updateGeneralInfo(GeneralInfo info) {
     generalInfo = info;
@@ -47,9 +49,13 @@ class SurveyState extends ChangeNotifier {
     appliancesInfo = info;
     notifyListeners();
   }
-
   void updateAccessRouteInfo(AccessRouteInfo info) {
     accessRouteInfo = info;
+    notifyListeners();
+  }
+
+  void updatePhotographicRecordInfo(PhotographicRecordInfo info) {
+    photographicRecordInfo = info;
     notifyListeners();
   }
 
@@ -67,5 +73,6 @@ class SurveyState extends ChangeNotifier {
     'electricityInfo': electricityInfo.toJson(),
     'appliancesInfo': appliancesInfo.toJson(),
     'accessRouteInfo': accessRouteInfo.toJson(),
+    'photographicRecordInfo': photographicRecordInfo.toJson(),
   };
 }

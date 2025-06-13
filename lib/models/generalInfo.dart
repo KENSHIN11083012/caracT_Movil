@@ -8,14 +8,14 @@ class GeneralInfo {
   String? contact;
 
   GeneralInfo({
-    this.date,
+    DateTime? date,
     this.department,
     this.municipality,
     this.district,
     this.village,
     this.intervieweeName,
     this.contact,
-  });
+  }) : date = date ?? DateTime.now();
 
   Map<String, dynamic> toJson() => {
     'date': date?.toIso8601String(),

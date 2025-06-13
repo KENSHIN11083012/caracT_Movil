@@ -35,7 +35,6 @@ class _LocationFieldState extends State<LocationField> {
     _controller.dispose();
     super.dispose();
   }
-
   Future<void> _getCurrentLocation() async {
     setState(() {
       _isLoading = true;
@@ -48,22 +47,25 @@ class _LocationFieldState extends State<LocationField> {
         final coordinates = LocationService.formatCoordinates(position);
         _controller.text = coordinates;
         widget.onChanged(coordinates);
+        setState(() {
+          _errorMessage = null;
+        });
       } else {
         setState(() {
-          _errorMessage = 'No se pudo obtener la ubicación. Por favor, ingrese las coordenadas manualmente.';
+          _errorMessage = 'No se pudo obtener la ubicación. Verifique que el GPS esté activado y que haya concedido permisos de ubicación.';
         });
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'Error al obtener la ubicación: $e';
+        _errorMessage = 'Error al obtener la ubicación: $e. Por favor, ingrese las coordenadas manualmente.';
       });
+      print('Error detallado de ubicación: $e');
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -71,10 +73,20 @@ class _LocationFieldState extends State<LocationField> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 8),
+            child: Text(
+              widget.label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF424242),
+              ),
+            ),
+          ),
           TextFormField(
             controller: _controller,
             decoration: AppTheme.inputDecoration.copyWith(
-              labelText: widget.label,
               suffixIcon: _isLoading
                   ? const SizedBox(
                       width: 24,
@@ -85,7 +97,7 @@ class _LocationFieldState extends State<LocationField> {
                       ),
                     )
                   : IconButton(
-                      icon: const Icon(Icons.my_location),
+                      icon: const Icon(Icons.my_location, color: Color(0xFF4CAF50)),
                       onPressed: _getCurrentLocation,
                     ),
               helperText: 'Formato: latitud, longitud (ej: 12.345678, -98.765432)',

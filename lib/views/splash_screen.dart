@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../utils/page_transitions.dart';
+import '../widgets/animations/animated_particles.dart';
+import '../widgets/animations/animated_loading_indicator.dart';
+import 'survey_form_page.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -7,76 +12,263 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _curveAnimation;
-  late Animation<double> _borderAnimation;
+class _SplashScreenState extends State<SplashScreen> 
+    with TickerProviderStateMixin {
+  late AnimationController _logoController;
+  late AnimationController _backgroundController;
+  late AnimationController _textController;
+    late Animation<double> _logoScale;
+  late Animation<double> _logoFade;
+  late Animation<double> _backgroundGradient;
+  late Animation<double> _textFade;
+
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(seconds: 3),
+    
+    // Configurar vibración al iniciar
+    _initControllers();
+    _initAnimations();
+    _startAnimationSequence();
+  }
+  void _initControllers() {
+    _logoController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-
-    _curveAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    );
-
-    _borderAnimation = Tween<double>(begin: 0, end: 1).animate(_curveAnimation);
-
-    _controller.forward();
     
-    // Modificar la navegación
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        Navigator.pushReplacementNamed(context, '/survey');
-      }
-    });
+    _backgroundController = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    );
+    
+    _textController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
   }
 
-  @override
+  void _initAnimations() {
+    // Animaciones del logo
+    _logoScale = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _logoController,
+      curve: Curves.elasticOut,
+    ));
+    
+    _logoFade = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _logoController,
+      curve: const Interval(0.0, 0.6, curve: Curves.easeInOut),
+    ));
+
+    // Animación del fondo
+    _backgroundGradient = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _backgroundController,
+      curve: Curves.easeInOut,
+    ));    // Animaciones del texto
+    _textFade = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _textController,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  void _startAnimationSequence() async {
+    // Vibración suave al inicio
+    HapticFeedback.lightImpact();
+      // Secuencia de animaciones
+    _backgroundController.forward();
+    
+    await Future.delayed(const Duration(milliseconds: 300));
+    _logoController.forward();
+    
+    await Future.delayed(const Duration(milliseconds: 800));
+    _textController.forward();
+      // Navegar después de completar las animaciones
+    await Future.delayed(const Duration(milliseconds: 2500));
+    if (mounted) {
+      HapticFeedback.mediumImpact();
+      Navigator.pushReplacement(
+        context,
+        CircularRevealTransition(child: const SurveyFormPage()),
+      );
+    }
+  }  @override
   void dispose() {
-    _controller.dispose();
+    _logoController.dispose();
+    _backgroundController.dispose();
+    _textController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: AnimatedBuilder(
-        animation: _borderAnimation,
+      body: AnimatedBuilder(        animation: Listenable.merge([
+          _logoController,
+          _backgroundController,
+          _textController,
+        ]),
         builder: (context, child) {
           return Container(
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: Stack(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color.lerp(
+                    const Color(0xFFE8F5E8),
+                    const Color(0xFF4CAF50),
+                    _backgroundGradient.value * 0.3,
+                  )!,
+                  Color.lerp(
+                    Colors.white,
+                    const Color(0xFF2E7D32),
+                    _backgroundGradient.value * 0.1,
+                  )!,
+                ],
+              ),
+            ),            child: Stack(
               children: [
-                // Bordes verdes animados
-                Positioned.fill(
-                  child: AnimatedBuilder(
-                    animation: _borderAnimation,
-                    builder: (context, child) {
-                      return CustomPaint(
-                        painter: BorderPainter(
-                          progress: _borderAnimation.value,
-                          color: const Color(0xFF4CAF50),
-                        ),
-                      );
-                    },
+                // Partículas de fondo animadas
+                const Positioned.fill(
+                  child: AnimatedParticles(
+                    particleCount: 25,
+                    particleColor: Color(0xFF4CAF50),
+                    minSize: 1.5,
+                    maxSize: 4.0,
+                    duration: Duration(seconds: 8),
                   ),
                 ),
-                // Logo centrado
-                Center(
-                  child: FadeTransition(
-                    opacity: _curveAnimation,
-                    child: Image.asset(
-                      'assets/logo.png', // Asegúrate de que la ruta sea correcta
+                
+                // Círculos decorativos
+                Positioned(
+                  top: -100,
+                  right: -50,
+                  child: Transform.scale(
+                    scale: _backgroundGradient.value,
+                    child: Container(
                       width: 200,
                       height: 200,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFF4CAF50).withOpacity(0.1),
+                      ),
+                    ),
+                  ),
+                ),
+                
+                Positioned(
+                  bottom: -80,
+                  left: -30,
+                  child: Transform.scale(
+                    scale: _backgroundGradient.value * 0.8,
+                    child: Container(
+                      width: 150,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFF4CAF50).withOpacity(0.08),
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Contenido principal centrado
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [                      // Logo con animación (solo símbolo CENS)
+                      FloatingParticle(
+                        amplitude: 8.0,
+                        duration: const Duration(seconds: 4),
+                        child: Transform.scale(
+                          scale: _logoScale.value,
+                          child: FadeTransition(
+                            opacity: _logoFade,
+                            child: Container(
+                              width: 200,
+                              height: 200,
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withOpacity(0.9),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFF4CAF50).withOpacity(0.3),
+                                    blurRadius: 20,
+                                    spreadRadius: 5,
+                                  ),
+                                ],
+                              ),
+                              child: Image.asset(
+                                'assets/logo.png',
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(0xFF4CAF50),
+                                    ),
+                                    child: const Icon(
+                                      Icons.school,
+                                      size: 80,
+                                      color: Colors.white,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ),                      ),
+                      
+                      const SizedBox(height: 80),
+                        // Indicador de carga animado
+                      FadeTransition(
+                        opacity: _textFade,
+                        child: const AnimatedLoadingIndicator(
+                          size: 40,
+                          color: Color(0xFF4CAF50),
+                          duration: Duration(milliseconds: 1500),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                  // Texto inferior con indicador de puntos
+                Positioned(
+                  bottom: 60,
+                  left: 0,
+                  right: 0,
+                  child: FadeTransition(
+                    opacity: _textFade,
+                    child: Column(
+                      children: [
+                        Text(
+                          'Cargando aplicación',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const ThreeDotsLoader(
+                          color: Color(0xFF4CAF50),
+                          size: 6.0,
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -84,63 +276,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             ),
           );
         },
-      ),
-    );
+      ),    );
   }
-}
-
-class BorderPainter extends CustomPainter {
-  final double progress;
-  final Color color;
-
-  BorderPainter({required this.progress, required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    // Figura izquierda
-    final leftPath = Path()
-      ..moveTo(0, 0)
-      ..lineTo(size.width * 0.4 * progress, 0)
-      ..quadraticBezierTo(
-        size.width * 0.5,
-        0,
-        size.width * 0.4,
-        size.height * 0.3 * progress,
-      )
-      ..quadraticBezierTo(
-        0,
-        size.height * 0.5,
-        0,
-        size.height * progress,
-      )
-      ..lineTo(0, 0);
-
-    // Figura derecha
-    final rightPath = Path()
-      ..moveTo(size.width, size.height)
-      ..lineTo(size.width * (1 - 0.4 * progress), size.height)
-      ..quadraticBezierTo(
-        size.width * 0.5,
-        size.height,
-        size.width * 0.6,
-        size.height * (1 - 0.3 * progress),
-      )
-      ..quadraticBezierTo(
-        size.width,
-        size.height * 0.5,
-        size.width,
-        size.height * (1 - progress),
-      )
-      ..lineTo(size.width, size.height);
-
-    canvas.drawPath(leftPath, paint);
-    canvas.drawPath(rightPath, paint);
-  }
-
-  @override
-  bool shouldRepaint(BorderPainter oldDelegate) => progress != oldDelegate.progress;
 }

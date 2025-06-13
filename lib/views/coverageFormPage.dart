@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/coverageInfo.dart';
 import '../models/survey_state.dart';
-import '../widgets/form/custom_number_field.dart';
-import '../widgets/form/form_navigation_buttons.dart';
-import '../widgets/layout/form_container.dart';
+import '../widgets/form/number_field_widget.dart';
+import '../widgets/layout/enhanced_form_container.dart';
+import '../utils/form_navigator.dart';
+import 'infrastructureFormPage.dart';
 
 class CoverageFormPage extends StatefulWidget {
   const CoverageFormPage({super.key});
@@ -93,20 +94,24 @@ class _CoverageFormPageState extends State<CoverageFormPage> {
                 ),
               ],
             );
-          },
-        );
+          },        );
       },
     );
   }
-
   @override
   Widget build(BuildContext context) {
-    return FormContainer(
+    return EnhancedFormContainer(
       title: 'Cobertura',
+      subtitle: 'Información de cobertura educativa',
       currentStep: 3,
-      child: Column(
-        children: [
-          Form(
+      onPrevious: () => FormNavigator.popForm(context),
+      onNext: _submitForm,
+      transitionType: FormTransitionType.slideScale,
+      child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
             key: _formKey,
             autovalidateMode: _showErrors 
                 ? AutovalidateMode.always 
@@ -114,14 +119,52 @@ class _CoverageFormPageState extends State<CoverageFormPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
-                  'Cobertura',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                // Caja informativa con descripción
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        const Color(0xFFFF9800).withValues(alpha: 0.1),
+                        const Color(0xFFFF9800).withValues(alpha: 0.05),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFFFF9800).withValues(alpha: 0.2),
+                      width: 1,
+                    ),
                   ),
-                  textAlign: TextAlign.center,
+                  child: Column(
+                    children: [
+                      const Icon(
+                        Icons.people_outline,
+                        size: 32,
+                        color: Color(0xFFFF9800),
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'Cobertura Educativa',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF2E2E2E),
+                        ),
+                        textAlign: TextAlign.center,                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Información sobre estudiantes, docentes y niveles educativos ofertados',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade600,
+                          height: 1.4,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 24),
                 
@@ -130,6 +173,7 @@ class _CoverageFormPageState extends State<CoverageFormPage> {
                   initialValue: _coverageInfo.totalStudents,
                   onChanged: (value) => _coverageInfo.totalStudents = value,
                 ),
+                
                 const SizedBox(height: 16),
                 
                 CustomNumberField(
@@ -137,6 +181,7 @@ class _CoverageFormPageState extends State<CoverageFormPage> {
                   initialValue: _coverageInfo.boysCount,
                   onChanged: (value) => _coverageInfo.boysCount = value,
                 ),
+                
                 const SizedBox(height: 16),
                 
                 CustomNumberField(
@@ -144,6 +189,7 @@ class _CoverageFormPageState extends State<CoverageFormPage> {
                   initialValue: _coverageInfo.girlsCount,
                   onChanged: (value) => _coverageInfo.girlsCount = value,
                 ),
+                
                 const SizedBox(height: 16),
                 
                 CustomNumberField(
@@ -178,30 +224,10 @@ class _CoverageFormPageState extends State<CoverageFormPage> {
               ],
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  offset: const Offset(0, -2),
-                  blurRadius: 8,
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: FormNavigationButtons(
-                onPrevious: () => Navigator.pop(context),
-                onNext: _submitForm,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
-
   void _submitForm() {
     setState(() {
       _showErrors = true;
@@ -223,7 +249,22 @@ class _CoverageFormPageState extends State<CoverageFormPage> {
 
       Provider.of<SurveyState>(context, listen: false)
           .updateCoverageInfo(_coverageInfo);
-      Navigator.pushNamed(context, '/infrastructure');
+      
+      // Usar el nuevo sistema de navegación con transiciones
+      FormNavigator.pushForm(
+        context,
+        const InfrastructureFormPage(),
+        type: FormTransitionType.slideScale,
+        stepNumber: 4,      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor, complete todos los campos requeridos'),
+          backgroundColor: Color(0xFFD32F2F),
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.all(16),
+        ),
+      );
     }
   }
 }

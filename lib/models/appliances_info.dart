@@ -30,14 +30,21 @@ class AppliancesInfo {
 
   AppliancesInfo({
     List<ApplianceItem>? appliances,
-    this.otherAppliances,
-  }) : appliances = appliances ?? [
+    this.otherAppliances,  }) : appliances = appliances ?? [
     ApplianceItem(name: 'Bombillos'),
     ApplianceItem(name: 'Ventilador'),
     ApplianceItem(name: 'Televisor'),
     ApplianceItem(name: 'Licuadora'),
     ApplianceItem(name: 'Nevera'),
+    ApplianceItem(name: 'Equipo'),
+    ApplianceItem(name: 'DVD'),
+    ApplianceItem(name: 'Lavadora'),
     ApplianceItem(name: 'Computador'),
+    ApplianceItem(name: 'Impresora'),
+    ApplianceItem(name: 'Bomba Biodigesto'),
+    ApplianceItem(name: 'Estabilizador'),
+    ApplianceItem(name: 'Celular'),
+    ApplianceItem(name: 'Tablet'),
   ];
 
   Map<String, dynamic> toJson() => {
